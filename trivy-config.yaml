@@ -1,0 +1,20 @@
+cache:
+  dir: ".trivycache"
+timeout: "10m"
+skip-update: false
+ignore-unfixed: true
+severity: "HIGH,CRITICAL"
+format: "json"
+output: "trivy-report.json"
+
+db:
+  skip-update: false
+  
+vulnerability:
+  ignore-unfixed: true
+  
+secret:
+  skip-paths:
+    - "test/"
+    - "*.test.js"
+    - "node_modules/"

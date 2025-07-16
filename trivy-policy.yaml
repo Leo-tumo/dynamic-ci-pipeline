@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Policy
+metadata:
+  name: security-policy
+spec:
+  rules:
+    - id: "critical-vulnerabilities"
+      description: "Block critical vulnerabilities"
+      severity: "CRITICAL"
+      action: "fail"
+      
+    - id: "high-vulnerabilities"
+      description: "Block high severity vulnerabilities"
+      severity: "HIGH"
+      action: "fail"
+      
+    - id: "medium-vulnerabilities"
+      description: "Warn on medium severity vulnerabilities"
+      severity: "MEDIUM"
+      action: "warn"
+      
+  exceptions:
+    - cve: "CVE-2023-example"
+      reason: "False positive - not applicable to our use case"
+      expiry: "2024-12-31"

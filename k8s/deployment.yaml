@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${DEPLOYMENT_NAME}
+  namespace: ${KUBE_NAMESPACE}
+  labels:
+    app: ${CI_PROJECT_NAME}
+    version: ${CI_COMMIT_SHORT_SHA}
+    environment: ${KUBE_NAMESPACE}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ${CI_PROJECT_NAME}
+      environment: ${KUBE_NAMESPACE}
+  template:
+    metadata:
+      labels:
+        app: ${CI_PROJECT_NAME}
+        version: ${CI_COMMIT_SHORT_SHA}
+        environment: ${KUBE_NAMESPACE}
+    spec:
+      containers:
+      - name: ${CI_PROJECT_NAME}
+        image: ${IMAGE_NAME}:${IMAGE_TAG}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "${KUBE_NAMESPACE}"
+        - name: PORT
+          value: "3000"
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      imagePullSecrets:
+      - name: registry-secret
+      securityContext:
+        fsGroup: 1001

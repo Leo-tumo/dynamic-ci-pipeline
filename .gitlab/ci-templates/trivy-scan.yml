@@ -1,0 +1,18 @@
+.trivy-scan:
+  stage: security-scan
+  image: aquasec/trivy:latest
+  variables:
+    TRIVY_NO_PROGRESS: "true"
+    TRIVY_CACHE_DIR: ".trivycache/"
+  cache:
+    paths:
+      - .trivycache/
+  before_script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - trivy image --exit-code 1 --severity HIGH,CRITICAL --format json --output trivy-report.json $IMAGE_NAME:$IMAGE_TAG
+  artifacts:
+    reports:
+      container_scanning: trivy-report.json
+    expire_in: 1 week
+  allow_failure: false

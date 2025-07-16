@@ -1,0 +1,10 @@
+.k8s-deploy:
+  image: bitnami/kubectl:latest
+  before_script:
+    - mkdir -p ~/.kube
+    - echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+    - kubectl config use-context $KUBE_CONTEXT
+  script:
+    - envsubst < k8s/deployment.yaml | kubectl apply -f -
+    - envsubst < k8s/service.yaml | kubectl apply -f -
+    - kubectl rollout status deployment/$DEPLOYMENT_NAME -n $KUBE_NAMESPACE
